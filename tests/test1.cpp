@@ -4,7 +4,7 @@
 int main(){
     EventLoop loop;
     loop.printInfo();
-    std::cout << "this is test 0" << std::endl;
+    std::cout << "this is test 1" << std::endl;
 
     return 0;
 }

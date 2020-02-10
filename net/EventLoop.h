@@ -1,7 +1,11 @@
 #include <iostream>
 
 class EventLoop{
-    EventLoop(){
-        std::cout << "testprint" << std::endl;
+public:
+    EventLoop(){}
+    ~EventLoop(){}
+
+    void printInfo(){
+        std::cout << "event loop print info" << std::endl;
     }
 };
