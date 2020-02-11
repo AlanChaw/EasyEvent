@@ -1,11 +1,34 @@
-#include <iostream>
+#pragma once
 
-class EventLoop{
+#include <vector>
+#include <atomic>
+// #include <memory>
+
+#include "base/Thread.h"
+#include "base/noncopyable.h"
+#include "Channel.h"
+
+namespace EasyEvent{
+
+class EventLoop : private noncopyable{
+
 public:
-    EventLoop(){}
-    ~EventLoop(){}
+    typedef std::vector<Channel*> ChannelList;
 
-    void printInfo(){
-        std::cout << "event loop print info" << std::endl;
-    }
+    EventLoop();
+    ~EventLoop();
+
+    void startLoop();
+    void quitLoop();
+
+    bool isInLoopThread() const { return _threadId == Thread::getCurrentThreadId();}
+
+private:
+    bool _looping;
+    bool _quit;
+    Thread::ThreadId _threadId;
+    std::unique_ptr<Poller> _poller;
+    ChannelList _activeChannels;    
 };
+
+}

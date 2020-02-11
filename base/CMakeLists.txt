@@ -1,5 +1,6 @@
 set(base_SRCS
-  temp.cpp
+  # temp.cpp
+  Thread.cpp
 #   AsyncLogging.cc
 #   Condition.cc
 #   CountDownLatch.cc
