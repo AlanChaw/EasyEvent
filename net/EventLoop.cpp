@@ -103,15 +103,20 @@ void EventLoop::updateChannel(Channel* channel){
 
 // 向 _wakeupFd 写一下以唤醒_wakeupChannel，从而唤醒 EventLoop
 void EventLoop::wakeup(){
-    int one = 1;
+    uint64_t one = 1;
     ssize_t n = ::write(_wakeupFd, &one, sizeof one);
+
+    printf("wake up fd: %d \n", _wakeupFd);
+    printf("size of one: %d\n", int(sizeof one));
+    printf("n: %d \n", int(n));
+
     assert(n == sizeof one);
 }
 
 
 /************************* private  ************************/
 void EventLoop::handleRead(){
-    int one = 1;
+    uint64_t one = 1;
     ssize_t n = ::read(_wakeupFd, &one, sizeof one);
     assert(n == sizeof one);
 }
