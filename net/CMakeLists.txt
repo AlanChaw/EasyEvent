@@ -11,6 +11,8 @@ set(net_SRCS
 #   Channel.cc
 #   Connector.cc
   EventLoop.cpp
+  Poller.cpp
+  Channel.cpp
 #   EventLoopThread.cc
 #   EventLoopThreadPool.cc
 #   InetAddress.cc

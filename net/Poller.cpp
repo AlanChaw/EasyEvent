@@ -43,16 +43,32 @@ void Poller::fillActiveChannels(int numEvents, ChannelList* activeChannels) cons
 }
 
 void Poller::updateChannel(Channel* channel){
-    assert(_ownerLoop->isInLoopThread);
-    if(channel->index() < 0){                       // 是一个新 Channel，做添加
+    assert(_ownerLoop->isInLoopThread());
+    if(channel->getIndex() < 0){                       // 是一个新 Channel，做添加
         assert(_channelMap.find(channel->getFd()) == _channelMap.end());
         // 由 Channel 产生出对应的 pfd
         pollfd pfd;
         pfd.fd = channel->getFd();
         pfd.events = static_cast<short>(channel->getEvents());
         pfd.revents = 0;
-    }else{                                          // 是一个旧 Channel，做更新
 
+        _pollfds.push_back(pfd);
+        int idx = static_cast<int>(_pollfds.size() - 1);
+        channel->setIndex(idx);
+        _channelMap[pfd.fd] = channel;
+    }else{                                          // 是一个旧 Channel，做更新
+        assert(_channelMap.find(channel->getFd()) != _channelMap.end());
+        assert(_channelMap[channel->getFd()] == channel);
+        int idx = channel->getIndex();
+        assert(0 <= idx && idx < static_cast<int>(_pollfds.size()));
+
+        pollfd pfd = _pollfds[idx];
+        assert(pfd.fd == channel->getFd() || pfd.fd == -1);
+        pfd.events = static_cast<short>(channel->getEvents());
+        pfd.revents = 0;
+        if(channel->isNoneEvent()){     // 如果这个 Channel 没有事件，则 fd = -1
+            pfd.fd = -1;
+        }
 
     }
 }

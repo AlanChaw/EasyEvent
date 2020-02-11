@@ -3,7 +3,6 @@
 #include <functional>
 #include "base/noncopyable.h"
 
-
 namespace EasyEvent{
 
 class EventLoop;
@@ -14,7 +13,6 @@ public:
     typedef std::function<void()> EventCallback;    // 用户传入的回调函数
 
     Channel(EventLoop* loop, int fd);               // 每个 Channel 只属于一个 EventLoop
-    ~Channel();
 
     void handleEvent();
     void setReadCallback(const EventCallback& cb){
@@ -29,14 +27,14 @@ public:
 
     int getFd() const { return _fd; }
     int getEvents() const { return _events;}
-    void set_revents(int revt) { _revents == revt; }
+    void set_revents(int revt) { _revents = revt; }
     bool isNoneEvent() const { return _events == kNoneEvent; }
 
     void enableReading() { _events = (_events | kReadEvent); update(); }
 
     // 给 Poller 使用
-    int index() const { return _index; }
-    void set_index(int idx) { _index = idx; }
+    int getIndex() const { return _index; }
+    void setIndex(int idx) { _index = idx; }
 
     EventLoop* getOwnerLoop() { return _loopPtr; }
 

@@ -6,9 +6,11 @@
 
 #include "base/Thread.h"
 #include "base/noncopyable.h"
-#include "Channel.h"
 
 namespace EasyEvent{
+
+class Channel;
+class Poller;
 
 class EventLoop : private noncopyable{
 
@@ -21,14 +23,16 @@ public:
     void startLoop();
     void quitLoop();
 
+    void updateChannel(Channel* channel);
+
     bool isInLoopThread() const { return _threadId == Thread::getCurrentThreadId();}
 
 private:
-    bool _looping;
-    bool _quit;
+    std::atomic<bool> _looping;
+    std::atomic<bool> _quit;
     Thread::ThreadId _threadId;
     std::unique_ptr<Poller> _poller;
-    ChannelList _activeChannels;    
+    ChannelList _activeChannels;
 };
 
 }

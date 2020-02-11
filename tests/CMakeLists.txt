@@ -4,5 +4,9 @@
 # add_executable(test1 test1.cpp)
 # target_link_libraries(test1 EasyEvent_net)
 
-add_executable(test2 test2.cpp)
-target_link_libraries(test2 EasyEvent_net)
+# add_executable(test2 test2.cpp)
+# target_link_libraries(test2 EasyEvent_net)
+
+add_executable(test3 test3.cpp)
+target_link_libraries(test3 EasyEvent_net)
+
