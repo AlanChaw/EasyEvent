@@ -17,7 +17,7 @@ int main()
 
   EasyEvent::EventLoopThread loopThread;
   EasyEvent::EventLoop* loop = loopThread.startLoop();
-  loop->runInLoop(runInThread);
+  loop->runInLoop(runInThread);   // 跨线程调用
   sleep(1);
 //   loop->runInLoop(runInThread);
 //   sleep(1);
@@ -25,5 +25,5 @@ int main()
 //   sleep(1);
   printf("exit main().\n");
 
-//   return 0;
+  // main()函数结束时，会析构 EventLoopThread，
 }

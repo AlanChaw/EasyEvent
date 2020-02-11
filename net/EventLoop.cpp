@@ -106,9 +106,9 @@ void EventLoop::wakeup(){
     uint64_t one = 1;
     ssize_t n = ::write(_wakeupFd, &one, sizeof one);
 
-    printf("wake up fd: %d \n", _wakeupFd);
-    printf("size of one: %d\n", int(sizeof one));
-    printf("n: %d \n", int(n));
+    // printf("wake up fd: %d \n", _wakeupFd);
+    // printf("size of one: %d\n", int(sizeof one));
+    // printf("n: %d \n", int(n));
 
     assert(n == sizeof one);
 }

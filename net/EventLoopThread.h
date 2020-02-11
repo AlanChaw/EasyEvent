@@ -10,6 +10,7 @@ namespace EasyEvent{
 
 class EventLoop;
 
+// 相当于是对 Thread 包了一层壳，这个 Thread 一出生就带有 EventLoop.
 class EventLoopThread : private noncopyable{
 
 public:
