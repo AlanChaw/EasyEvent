@@ -6,11 +6,11 @@
 namespace EasyEvent{
 
 // 对网络地址 struct sockaddr_in 的封装
-class InternetAddr{
+class CapsuledAddr{
 public:
-    explicit InternetAddr(uint16_t port);
-    InternetAddr(const std::string& ip, uint16_t port);
-    InternetAddr(const sockaddr_in& addr);
+    explicit CapsuledAddr(uint16_t port);
+    CapsuledAddr(const std::string& ip, uint16_t port);
+    CapsuledAddr(const sockaddr_in& addr);
 
     const sockaddr_in& getSocketAddr() const { return _addr; }
     void setSocketAddr(const sockaddr_in& addr) { _addr = addr; }

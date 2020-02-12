@@ -1,4 +1,4 @@
-#include "InternetAddr.h"
+#include "CapsuledAddr.h"
 
 #include <assert.h>
 #include <netinet/in.h>
@@ -28,25 +28,25 @@ using namespace EasyEvent;
 */
 
 // 只提供端口号
-InternetAddr::InternetAddr(uint16_t port){
+CapsuledAddr::CapsuledAddr(uint16_t port){
     _addr.sin_family = AF_INET;     // ipv4
     _addr.sin_port = hostToNetwork16(port);
     _addr.sin_addr.s_addr = hostToNetwork32(INADDR_ANY);  // uint32_t
 }
 
 // 同时提供地址和端口号
-InternetAddr::InternetAddr(const std::string& ip, uint16_t port){
+CapsuledAddr::CapsuledAddr(const std::string& ip, uint16_t port){
     _addr.sin_family = AF_INET;
     _addr.sin_port = hostToNetwork16(port);
     assert(inet_pton(AF_INET, ip.c_str(), &(_addr.sin_addr)) > 0);
 }
 
 // 从基本类型转换构造
-InternetAddr::InternetAddr(const sockaddr_in& addr)
+CapsuledAddr::CapsuledAddr(const sockaddr_in& addr)
     : _addr(addr)
     {}
 
-std::string InternetAddr::toString() const{
+std::string CapsuledAddr::toString() const{
     // xxx.xxx.xxx.xxx : yyyyy
     char buf[32];
     char host[INET_ADDRSTRLEN] = "INVALID";
