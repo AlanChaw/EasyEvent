@@ -14,7 +14,7 @@ public:
 
     const sockaddr_in& getSocketAddr() const { return _addr; }
     void setSocketAddr(const sockaddr_in& addr) { _addr = addr; }
-
+    
     std::string toString() const;
 
     // 地址转换

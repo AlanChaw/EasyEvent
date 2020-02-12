@@ -7,6 +7,7 @@ namespace EasyEvent{
 
 class EventLoop;
 
+// 每个 Channel 负责处理一个 socket，也就是一个文件描述符，但不拥有该 fd
 class Channel : private noncopyable{
 
 public:

@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 using namespace EasyEvent;
 
@@ -29,6 +30,7 @@ using namespace EasyEvent;
 
 // 只提供端口号
 CapsuledAddr::CapsuledAddr(uint16_t port){
+    bzero(&_addr, sizeof _addr);
     _addr.sin_family = AF_INET;     // ipv4
     _addr.sin_port = hostToNetwork16(port);
     _addr.sin_addr.s_addr = hostToNetwork32(INADDR_ANY);  // uint32_t
@@ -36,6 +38,7 @@ CapsuledAddr::CapsuledAddr(uint16_t port){
 
 // 同时提供地址和端口号
 CapsuledAddr::CapsuledAddr(const std::string& ip, uint16_t port){
+    bzero(&_addr, sizeof _addr);
     _addr.sin_family = AF_INET;
     _addr.sin_port = hostToNetwork16(port);
     assert(inet_pton(AF_INET, ip.c_str(), &(_addr.sin_addr)) > 0);

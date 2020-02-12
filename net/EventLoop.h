@@ -39,6 +39,7 @@ public:
 
     bool isInLoopThread() const { return _threadId == Thread::getCurrentThreadId();}
 
+    // TODO
     // void runAt();
     // void runAfter();
     // void runEvery();
@@ -47,6 +48,7 @@ private:
     void handleRead();
     void doPendingFunctors();
 
+private:
     std::atomic<bool> _looping;
     std::atomic<bool> _quit;
     std::atomic<bool> _callingPendingFunctors;

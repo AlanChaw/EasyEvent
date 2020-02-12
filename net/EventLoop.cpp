@@ -93,7 +93,6 @@ void EventLoop::queueInLoop(const Functor& cb){
     }
 }
 
-
 void EventLoop::updateChannel(Channel* channel){
     assert(channel->getOwnerLoop() == this);
     assert(isInLoopThread());

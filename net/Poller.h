@@ -4,12 +4,12 @@
 #include <vector>
 
 #include "base/Timestamp.h"
-#include "EventLoop.h"
 #include <poll.h>
 
 namespace EasyEvent{
 
 class Channel;
+class EventLoop;
 
 class Poller : private noncopyable{
 public:
