@@ -21,6 +21,9 @@ Socket::~Socket(){
     assert(returnVal >= 0);
 }
 
+const sockaddr* cast_to_sockaddr(const sockaddr_in* addr);
+sockaddr* cast_to_sockaddr(sockaddr_in* addr);
+
 void Socket::bindAddress(const CapsuledAddr& addr){
     // socket::bind(), 不是 C++11 std::bind()，这里是将“地址：端口”信息绑定到 fd
     int returnVal = ::bind(_socket_fd, cast_to_sockaddr(&(addr.getSocketAddr())), sizeof addr);
@@ -67,7 +70,7 @@ void Socket::setReuseAddr(bool on){
 
 /********************** helper functions **********************/
 
-namespace{
+// namespace{
 const sockaddr* cast_to_sockaddr(const sockaddr_in* addr){
     sockaddr_in* temp = const_cast<sockaddr_in*>(addr);
     return reinterpret_cast<sockaddr*>(temp);
@@ -91,7 +94,7 @@ void setNonBlockAndCloseOnExec(int sockfd){
     assert(returnVal >= 0);
 }
 
-}
+// }
 
 
 /********************** static functions **********************/

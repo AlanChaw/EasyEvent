@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "base/Timestamp.h"
+#include "base/noncopyable.h"
 #include <poll.h>
 
 namespace EasyEvent{

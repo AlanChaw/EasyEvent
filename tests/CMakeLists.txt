@@ -23,5 +23,8 @@
 # add_executable(testTCPSocketClient testTCPSocketClient.cpp)
 # target_link_libraries(testTCPSocketClient EasyEvent_net)
 
-add_executable(testAddrConverter testAddrConverter.cpp)
-target_link_libraries(testAddrConverter EasyEvent_net)
+# add_executable(testAddrConverter testAddrConverter.cpp)
+# target_link_libraries(testAddrConverter EasyEvent_net)
+
+add_executable(testSocketWrapper testSocketWrapper.cpp)
+target_link_libraries(testSocketWrapper EasyEvent_net)

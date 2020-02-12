@@ -3,6 +3,7 @@ set(base_SRCS
   Thread.cpp
   Timestamp.cc
   CapsuledAddr.cpp 
+  Socket.cpp 
 #   AsyncLogging.cc
 #   Condition.cc
 #   CountDownLatch.cc
