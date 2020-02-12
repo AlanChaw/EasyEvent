@@ -8,7 +8,7 @@
 namespace EasyEvent{
 
 // 系统 socket fd 的包装类，目前仅支持 TCP
-// RAII Class，对象析构时自动关闭对应 fd，防止串话
+// RAII Class，对象析构时自动关闭对应 fd
 class Socket : private noncopyable{
 
 public:
