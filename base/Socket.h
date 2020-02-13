@@ -14,7 +14,7 @@ class Socket : public FileDescriptor, private noncopyable{
 
 public:
     explicit Socket(int socket_fd);
-    ~Socket();
+    // ~Socket();
 
     // 绑定该 socket 侦听的地址
     void bindAddress(const CapsuledAddr& localAddr);
@@ -28,7 +28,7 @@ public:
     void setReuseAddr(bool on);
 
     static int createNonblockingOrDie();
-
+    static sockaddr_in getLocalAddr(int sockfd);
 };
 
 }

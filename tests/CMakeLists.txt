@@ -29,6 +29,8 @@
 # add_executable(testSocketWrapper testSocketWrapper.cpp)
 # target_link_libraries(testSocketWrapper EasyEvent_net)
 
-add_executable(testAcceptor testAcceptor.cpp)
-target_link_libraries(testAcceptor EasyEvent_net)
+# add_executable(testAcceptor testAcceptor.cpp)
+# target_link_libraries(testAcceptor EasyEvent_net)
 
+add_executable(testTcpServer testTcpServer.cpp)
+target_link_libraries(testTcpServer EasyEvent_net)

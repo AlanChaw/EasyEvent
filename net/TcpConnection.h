@@ -11,7 +11,9 @@ namespace EasyEvent{
 class EventLoop;
 class Channel;
 class Socket;
+class TcpConnection;
 
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 /* 
   TcpConnection 相当于对每个 socket 连接做了封装
   1. 唯一一个用 shared_ptr 持有的类
@@ -20,10 +22,10 @@ class Socket;
   4. TcpConnection 表示的是 “一次连接”，一旦连接断开，这个对象就没用了
 */
 class TcpConnection : private noncopyable, 
-                      std::enable_shared_from_this<TcpConnection>{
+                      public std::enable_shared_from_this<TcpConnection>{
 
 public:
-    typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+    
     // typedef std::function<void()> TimerCallback;
     typedef std::function<void (const TcpConnectionPtr&)> ConnectionCallback;
     typedef std::function<void (const TcpConnectionPtr&,

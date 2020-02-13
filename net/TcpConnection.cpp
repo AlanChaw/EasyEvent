@@ -36,6 +36,8 @@ void TcpConnection::connectEstablished(){
     assert(!_hasConnected);
     _hasConnected = true;
     _channel->enableReading();      // 将 Channel 注册到 EventLoop，开始侦听
+
+    _connCB(shared_from_this());    // 连接建立时，回调用户传入的 onConnectionCB
 }
 
 

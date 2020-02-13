@@ -5,11 +5,11 @@
 #include "base/noncopyable.h"
 #include "base/Socket.h"
 #include "Channel.h"
+#include "base/CapsuledAddr.h"
 
 namespace EasyEvent{
 
 class EventLoop;
-class CapsuledAddress;
 
 /*
   TCP 连接的接收器
@@ -20,18 +20,21 @@ class CapsuledAddress;
 */
 class Acceptor : private noncopyable{
 public:
-    typedef std::function<void (int connfd, const CapsuledAddr&)> ConnCB;
-
-    Acceptor(EventLoop* loop, const CapsuledAddr& listenAddr);
+    typedef std::function<void(int, const CapsuledAddr& addr)> ConnCB;
+    
+    explicit Acceptor(EventLoop* loop, const CapsuledAddr& listenAddr);
+    // ~Acceptor();
 
     // 为新连接绑定 readable 时的回调函数
     void setNewConnectionCallback(const ConnCB& cb) { _newConnCB = cb; }
+
+    const Socket& getAcceptSocket() const { return _acceptSocket; }
 
     bool isListenning() const { return _listenning; }
     void listen();
     
 private:
-    void handleRead();
+    void handleNewConnection();
 
     EventLoop* _loop;
     Socket _acceptSocket;

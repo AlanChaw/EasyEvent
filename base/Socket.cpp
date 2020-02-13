@@ -107,3 +107,15 @@ int Socket::createNonblockingOrDie(){
     assert(sockfd >= 0);
     return sockfd;
 }
+
+sockaddr_in Socket::getLocalAddr(int connfd){
+    sockaddr_in localAddr;
+    bzero(&localAddr, sizeof localAddr);
+    socklen_t addrlen = sizeof(localAddr);
+
+    // 实际上是通过连接fd获取到的 localAddr，而不是通过 socket fd
+    int returnVal = ::getsockname(connfd, cast_to_sockaddr(&localAddr), &addrlen);
+    assert(returnVal >= 0);
+
+    return localAddr;
+}
