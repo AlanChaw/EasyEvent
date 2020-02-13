@@ -17,8 +17,7 @@ Socket::Socket(int socket_fd)
     : _socket_fd(socket_fd) {}
 
 Socket::~Socket(){
-    int returnVal = ::close(_socket_fd);
-    assert(returnVal >= 0);
+    close(_socket_fd);
 }
 
 const sockaddr* cast_to_sockaddr(const sockaddr_in* addr);
@@ -63,7 +62,7 @@ int Socket::accept(CapsuledAddr* peerAddr){
 
 void Socket::setReuseAddr(bool on){
     int optval = on ? 1 : 0;
-    ::setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR,
+    ::setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR,      // 端口复用
                 &optval, sizeof optval);
 }
 
@@ -110,4 +109,9 @@ int Socket::createNonblockingOrDie(){
     
     assert(sockfd >= 0);
     return sockfd;
+}
+
+void Socket::close(int fd){
+    int returnVal = ::close(fd);
+    assert(returnVal >= 0);
 }

@@ -24,11 +24,12 @@ public:
     // 返回指向对应 socket 的 fd
     // 失败返回-1
     int accept(CapsuledAddr* peerAddr);
-
+    
     // 是否允许重用
     void setReuseAddr(bool on);
 
     static int createNonblockingOrDie();
+    static void close(int fd);
 
 private:
     const int _socket_fd;
