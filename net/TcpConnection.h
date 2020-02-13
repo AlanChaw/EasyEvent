@@ -2,12 +2,15 @@
 
 #include "base/CapsuledAddr.h"
 #include "base/noncopyable.h"
-
+#include "base/FileDescriptor.h"
 
 #include <memory>
-#include <atomic>
 
 namespace EasyEvent{
+
+class EventLoop;
+class Channel;
+class Socket;
 
 /* 
   TcpConnection 相当于对每个 socket 连接做了封装
@@ -16,11 +19,6 @@ namespace EasyEvent{
   3. TcpConnection 用来封装 socket 返回的 connfd，这样保证处理请求期间 connfd不会被关闭
   4. TcpConnection 表示的是 “一次连接”，一旦连接断开，这个对象就没用了
 */
-
-class EventLoop;
-class Channel;
-class Socket;
-
 class TcpConnection : private noncopyable, 
                       std::enable_shared_from_this<TcpConnection>{
 
@@ -59,7 +57,7 @@ private:
 private:
     EventLoop* _loop;
     std::string _name;
-    std::atomic<bool> _hasConnected;
+    bool _hasConnected;
 
     std::unique_ptr<FileDescriptor> _conn;
     std::unique_ptr<Channel> _channel;

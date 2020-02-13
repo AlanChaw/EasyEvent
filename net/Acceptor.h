@@ -20,7 +20,7 @@ class CapsuledAddress;
 */
 class Acceptor : private noncopyable{
 public:
-    typedef std::function<void (int, const CapsuledAddr&)> ConnCB;
+    typedef std::function<void (int connfd, const CapsuledAddr&)> ConnCB;
 
     Acceptor(EventLoop* loop, const CapsuledAddr& listenAddr);
 

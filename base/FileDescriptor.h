@@ -12,7 +12,11 @@ public:
         : _fd(fd) {}
 
     ~FileDescriptor(){
-        int returnVal = ::close(_fd);
+        close(_fd);
+    }
+
+    static void close(int fd){
+        int returnVal = ::close(fd);
         assert(returnVal >= 0);
     }
 

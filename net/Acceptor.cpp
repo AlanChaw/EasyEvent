@@ -41,7 +41,7 @@ void Acceptor::handleRead(){
         if(_newConnCB){
             _newConnCB(connfd, peerAddr);
         }else{
-            Socket::close(connfd);      // 关闭新连接，而不是 socket
+            FileDescriptor::close(connfd);      // 关闭新连接，而不是 socket
         }
     }
     // TODO
