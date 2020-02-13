@@ -5,7 +5,6 @@
 
 
 #include <memory>
-#include <atomic>
 
 namespace EasyEvent{
 
@@ -59,7 +58,7 @@ private:
 private:
     EventLoop* _loop;
     std::string _name;
-    std::atomic<bool> _hasConnected;
+    bool _hasConnected;
 
     std::unique_ptr<FileDescriptor> _conn;
     std::unique_ptr<Channel> _channel;
