@@ -4,18 +4,17 @@
 
 #include "CapsuledAddr.h"
 #include "noncopyable.h"
+#include "FileDescriptor.h"
 
 namespace EasyEvent{
 
 // 系统 socket fd 的包装类，目前仅支持 TCP
-// RAII Class，对象析构时自动关闭对应 fd
-class Socket : private noncopyable{
+// 继承自 FileDescriptor，RAII类，析构时会自动关闭对应的文件
+class Socket : public FileDescriptor, private noncopyable{
 
 public:
     explicit Socket(int socket_fd);
     ~Socket();
-
-    int getFd() const { return _socket_fd; }
 
     // 绑定该 socket 侦听的地址
     void bindAddress(const CapsuledAddr& localAddr);
@@ -29,10 +28,7 @@ public:
     void setReuseAddr(bool on);
 
     static int createNonblockingOrDie();
-    static void close(int fd);
 
-private:
-    const int _socket_fd;
 };
 
 }

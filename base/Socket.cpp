@@ -14,18 +14,15 @@
 using namespace EasyEvent;
 
 Socket::Socket(int socket_fd)
-    : _socket_fd(socket_fd) {}
+    : FileDescriptor(socket_fd) {}
 
-Socket::~Socket(){
-    close(_socket_fd);
-}
 
 const sockaddr* cast_to_sockaddr(const sockaddr_in* addr);
 sockaddr* cast_to_sockaddr(sockaddr_in* addr);
 
 void Socket::bindAddress(const CapsuledAddr& addr){
     // socket::bind(), 不是 C++11 std::bind()，这里是将“地址：端口”信息绑定到 fd
-    int returnVal = ::bind(_socket_fd, cast_to_sockaddr(&(addr.getSocketAddr())), sizeof addr);
+    int returnVal = ::bind(getFd(), cast_to_sockaddr(&(addr.getSocketAddr())), sizeof addr);
     assert(returnVal >= 0);
 }
 
@@ -37,7 +34,7 @@ void Socket::listen(){
                注意不是同时支持的最大连接数，一个 sockfd 对应一个连接,
                而 sockfd 数量由系统所支持的最多 fd 数量决定
     */
-    int returnVal = ::listen(_socket_fd, SOMAXCONN);
+    int returnVal = ::listen(getFd(), SOMAXCONN);
     assert(returnVal >= 0);
 }
 
@@ -52,7 +49,7 @@ int Socket::accept(CapsuledAddr* peerAddr){
     */
     // int connfd = accept(_socket_fd, &addr);
     socklen_t addrLen = sizeof addr;
-    int connfd = ::accept4(_socket_fd, cast_to_sockaddr(&addr), &addrLen, 
+    int connfd = ::accept4(getFd(), cast_to_sockaddr(&addr), &addrLen, 
                             SOCK_NONBLOCK | SOCK_CLOEXEC);
     if(connfd >= 0){
         peerAddr->setSocketAddr(addr);
@@ -62,7 +59,7 @@ int Socket::accept(CapsuledAddr* peerAddr){
 
 void Socket::setReuseAddr(bool on){
     int optval = on ? 1 : 0;
-    ::setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR,      // 端口复用
+    ::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,      // 端口复用
                 &optval, sizeof optval);
 }
 
@@ -109,9 +106,4 @@ int Socket::createNonblockingOrDie(){
     
     assert(sockfd >= 0);
     return sockfd;
-}
-
-void Socket::close(int fd){
-    int returnVal = ::close(fd);
-    assert(returnVal >= 0);
 }
