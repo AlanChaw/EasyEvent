@@ -22,8 +22,10 @@ public:
     // Poll 所有的 IO 事件，需要在 loop 所在的线程调用
     muduo::Timestamp poll(int timeoutMs, ChannelList* activeChannels);   
 
-    // 改变该 Poller 所关注的Channel，需要在 loop 所在线程调用
+    // 改变该 Poller 所关注的 Channel，需要在 loop 所在线程调用
     void updateChannel(Channel* channel);
+    // 当连接关闭时，不再关注此 Channel，将其删除
+    void removeChannel(Channel* channel);
 
 private:
     void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;

@@ -32,6 +32,7 @@ public:
 
 private:
     void newConnection(int connfd, const CapsuledAddr& peerAddr);
+    void removeConnection(const TcpConnectionPtr& conn);
 
 private:
     typedef std::unordered_map<std::string, TcpConnectionPtr> ConnMap;

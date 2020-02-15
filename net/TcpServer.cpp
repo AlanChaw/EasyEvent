@@ -17,8 +17,8 @@ TcpServer::TcpServer(EventLoop* loop, const CapsuledAddr& listenAddr)
     // 有新连接接入时，Acceptor 会获取到 connfd 和 peerAddr，并传入 newConnection
     // newConnection 相当于用户
 
-  _acceptor->setNewConnectionCallback(
-      std::bind(&TcpServer::newConnection, this, _1, _2));
+    _acceptor->setNewConnectionCallback(
+        std::bind(&TcpServer::newConnection, this, _1, _2));    
 }
 
 TcpServer::~TcpServer()
@@ -46,7 +46,7 @@ void TcpServer::newConnection(int connfd, const CapsuledAddr& peerAddr){
 
     // !!!!!! 这里实际上是通过新连接的 fd 获取到的本地地址，而不是通过 socket fd
     // !!!!!! 在 muduo 中这个部分的实现有严重的歧义。虽然传入 socket fd 也能拿到同样的本地地址
-    CapsuledAddr localAddr(Socket::getLocalAddr(connfd));  // 0.0.0.0
+    CapsuledAddr localAddr(Socket::getLocalAddr(connfd));  // 0.0.0.0 : listen port
 
     // printf("new connection socket fd: %d \n", _acceptor->getAcceptSocket().getFd());
     // printf("new connection connfd: %d \n", connfd);
@@ -63,5 +63,16 @@ void TcpServer::newConnection(int connfd, const CapsuledAddr& peerAddr){
     // 把用户传入的回调函数原封传入新的 TcpConnection
     conn->setConnectionCallback(_connCB);
     conn->setMessageCallback(_msgCB);
+    conn->setCloseCallback(std::bind(&TcpServer::removeConnection, this, _1));
     conn->connectEstablished();
+}
+
+void TcpServer::removeConnection(const TcpConnectionPtr& conn){
+    assert(_loop->isInLoopThread());
+    size_t n = _connMap.erase(conn->getName());
+    assert(n == 1);  (void)n;
+    _loop->queueInLoop(
+        std::bind(&TcpConnection::connectDestroyed, conn)
+    );
+    // 删除后再告诉一声
 }

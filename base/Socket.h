@@ -29,6 +29,8 @@ public:
 
     static int createNonblockingOrDie();
     static sockaddr_in getLocalAddr(int sockfd);
+    static int getSocketErr(int sockfd);
 };
+
 
 }

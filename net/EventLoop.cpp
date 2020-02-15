@@ -100,6 +100,13 @@ void EventLoop::updateChannel(Channel* channel){
     _poller->updateChannel(channel);
 }
 
+void EventLoop::removeChannel(Channel* channel){
+    assert(channel->getOwnerLoop() == this);
+    assert(isInLoopThread());
+
+    _poller->removeChannel(channel);
+}
+
 // 向 _wakeupFd 写一下以唤醒_wakeupChannel，从而唤醒 EventLoop
 void EventLoop::wakeup(){
     uint64_t one = 1;

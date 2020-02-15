@@ -4,6 +4,7 @@
 #include "EventLoop.h"
 
 #include <assert.h>
+#include <algorithm>
 
 using namespace EasyEvent;
 
@@ -72,5 +73,33 @@ void Poller::updateChannel(Channel* channel){
         }
 
     }
+}
+
+void Poller::removeChannel(Channel* channel){
+    assert(_ownerLoop->isInLoopThread());
+    assert(_channelMap.count(channel->getFd()));
+    assert(_channelMap[channel->getFd()] == channel);
+    assert(channel->isNoneEvent());         // 检查确认该 Channel 不再关注任何事件
+    
+    int index = channel->getIndex();
+    assert(index >= 0 && index < static_cast<int>(_pollfds.size()));
+    const pollfd pfd = _pollfds[index]; (void)pfd;
+    assert(pfd.fd == -channel->getFd() - 1 && pfd.events == channel->getEvents());
+    size_t n = _channelMap.erase(channel->getFd());
+    assert(n == 1); (void)n;
+
+    // 常用的 vector 删除元素方法，先看是否是末尾，如果不是末尾则换到末尾去，O(1)
+    if(index == static_cast<int>(_pollfds.size()) - 1){
+        _pollfds.pop_back();
+    }else{
+        int endFd = _pollfds.back().fd;
+        std::iter_swap(_pollfds.begin()+index, _pollfds.end()-1);
+        if(endFd < 0){
+            endFd = -endFd-1;
+        }
+        _channelMap[endFd]->setIndex(index);    // 为换进来的重设 index
+        _pollfds.pop_back();                    // 末尾删除
+    }
+
 }
 

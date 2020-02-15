@@ -31,6 +31,8 @@ public:
     typedef std::function<void (const TcpConnectionPtr&,
                                 const char* data,
                                 ssize_t len)> MessageCallback;
+    typedef std::function<void (const TcpConnectionPtr&)> CloseCallback;
+
 
     TcpConnection(EventLoop* loop,
                   const std::string& name,
@@ -51,11 +53,21 @@ public:
     void setMessageCallback(const MessageCallback& cb){
         _msgCB = cb;
     }
+    // 内部使用，用于通知 TcpServer 析构该 TcpConnection
+    void setCloseCallback(const CloseCallback& cb){
+        _closeCB = cb;
+    }
 
+    // 用于给 TcpServer 调用
     void connectEstablished();
+    void connectDestroyed();
 
 private:
     void handleRead();
+    void handleWrite();
+    void handleClose();
+    void handleError();
+
 private:
     EventLoop* _loop;
     std::string _name;
@@ -67,6 +79,7 @@ private:
     CapsuledAddr _peerAddr;
     ConnectionCallback _connCB;
     MessageCallback _msgCB;
+    CloseCallback _closeCB;
 };
 
 }

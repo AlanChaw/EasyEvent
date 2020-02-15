@@ -36,6 +36,8 @@ public:
     // 内部使用
     void wakeup();
     void updateChannel(Channel* channel);
+    void removeChannel(Channel* channel);
+
 
     bool isInLoopThread() const { return _threadId == Thread::getCurrentThreadId();}
 
