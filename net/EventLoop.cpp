@@ -32,6 +32,8 @@ EventLoop::EventLoop()
       _wakeupFd(createEventfd()),
       _wakeupChannel(new Channel(this, _wakeupFd))
 {
+    printf("eventloop wakeup channel fd: %d\n", _wakeupFd);
+
     assert(!t_loopInThisThread);            // 每个线程只能有一个 EventLoop
     t_loopInThisThread = this;
     _wakeupChannel->setReadCallback(

@@ -58,20 +58,26 @@ void Poller::updateChannel(Channel* channel){
         int idx = static_cast<int>(_pollfds.size() - 1);
         channel->setIndex(idx);
         _channelMap[pfd.fd] = channel;
+
+        printf("add new channel, channelfd: %d\n", channel->getFd());
+        printf("add new channel, pfd: %d \n", pfd.fd);
     }else{                                          // 是一个旧 Channel，做更新
         assert(_channelMap.find(channel->getFd()) != _channelMap.end());
         assert(_channelMap[channel->getFd()] == channel);
         int idx = channel->getIndex();
         assert(0 <= idx && idx < static_cast<int>(_pollfds.size()));
 
-        pollfd pfd = _pollfds[idx];
-        assert(pfd.fd == channel->getFd() || pfd.fd == -1);
+        pollfd& pfd = _pollfds[idx];
+        assert(pfd.fd == channel->getFd() || pfd.fd == -channel->getFd()-1);
         pfd.events = static_cast<short>(channel->getEvents());
         pfd.revents = 0;
         if(channel->isNoneEvent()){     // 如果这个 Channel 没有事件，则 fd = -1
-            pfd.fd = -1;
+            pfd.fd = -channel->getFd()-1;
         }
+        printf("update channel, channelfd: %d\n", channel->getFd());
+        printf("update channel, pfd: %d \n", pfd.fd);
 
+        printf("make sure updated pfd: %d \n", _pollfds[idx].fd);
     }
 }
 
@@ -84,7 +90,12 @@ void Poller::removeChannel(Channel* channel){
     int index = channel->getIndex();
     assert(index >= 0 && index < static_cast<int>(_pollfds.size()));
     const pollfd pfd = _pollfds[index]; (void)pfd;
-    assert(pfd.fd == -channel->getFd() - 1 && pfd.events == channel->getEvents());
+
+    printf("remove channel, channel fd: %d \n", channel->getFd());
+    printf("remove channel, poll fd: %d \n", pfd.fd);
+
+    assert(pfd.fd == -channel->getFd() - 1);
+    assert(pfd.events == channel->getEvents());
     size_t n = _channelMap.erase(channel->getFd());
     assert(n == 1); (void)n;
 

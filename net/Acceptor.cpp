@@ -13,6 +13,8 @@ Acceptor::Acceptor(EventLoop* loop, const CapsuledAddr& listenAddr)
       _acceptChannel(loop, _acceptSocket.getFd()),
       _listenning(false)
 {
+    printf("acceptor channel fd: %d\n", _acceptChannel.getFd());
+
     _acceptSocket.setReuseAddr(true);   // 允许地址端口复用
     _acceptSocket.bindAddress(listenAddr);
     _acceptChannel.setReadCallback(     // 交由 Channel 侦听当前 Socket，有连接接入时回调

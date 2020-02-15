@@ -32,6 +32,7 @@ Channel::~Channel(){
 }
 
 void Channel::update(){
+    printf("update channel, fd: %d \n", _fd);
     _loopPtr->updateChannel(this);
 }
 

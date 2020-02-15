@@ -32,5 +32,8 @@
 # add_executable(testAcceptor testAcceptor.cpp)
 # target_link_libraries(testAcceptor EasyEvent_net)
 
-add_executable(testTcpServer testTcpServer.cpp)
-target_link_libraries(testTcpServer EasyEvent_net)
+# add_executable(testTcpServer testTcpServer.cpp)
+# target_link_libraries(testTcpServer EasyEvent_net)
+
+add_executable(testConnClose testConnClose.cpp)
+target_link_libraries(testConnClose EasyEvent_net)
