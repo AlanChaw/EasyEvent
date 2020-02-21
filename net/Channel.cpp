@@ -36,7 +36,7 @@ void Channel::update(){
     _loopPtr->updateChannel(this);
 }
 
-void Channel::handleEvent(){
+void Channel::handleEvent(muduo::Timestamp receiveTime){
 //   if (revents_ & POLLNVAL) {
 //     LOG_WARN << "Channel::handle_event() POLLNVAL";
 //   }
@@ -56,7 +56,7 @@ void Channel::handleEvent(){
     }
     if(_revents & (POLLIN | POLLPRI | POLLRDHUP)){
         if(_readCallback){
-            _readCallback();
+            _readCallback(receiveTime);
         }
     }
     if(_revents & POLLOUT){

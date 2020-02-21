@@ -23,7 +23,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
       _peerAddr(peerAddr)    
 {
     _channel->setReadCallback(
-        std::bind(&TcpConnection::handleRead, this)
+        std::bind(&TcpConnection::handleRead, this, std::placeholders::_1)
     );
     _channel->setWriteCallback(
         std::bind(&TcpConnection::handleWrite, this)
@@ -63,15 +63,15 @@ void TcpConnection::connectDestroyed(){
 
 /************************** private functions **************************/
 
-void TcpConnection::handleRead(){
-    // 这里将来用 buffer 来处理
-    char buf[65536];
-    ssize_t n = ::read(_channel->getFd(), buf, sizeof buf);
+void TcpConnection::handleRead(muduo::Timestamp receiveTime){
+    int savedErrno = 0;
+    ssize_t n = _inputBuffer.readFd(_channel->getFd(), &savedErrno);
     if(n > 0){
-        _msgCB(shared_from_this(), buf, n);     // n > 0 ，有新消息
+        _msgCB(shared_from_this(), &_inputBuffer, receiveTime);     // n > 0 ，有新消息
     }else if(n == 0){
         handleClose();                          // n == 0，读到 0，表示断开(自行规定)
     }else{
+        errno = savedErrno;
         handleError();                          // n < 0，出现错误
     }
     

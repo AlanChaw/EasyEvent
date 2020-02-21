@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "base/noncopyable.h"
+#include "base/Timestamp.h"
 
 namespace EasyEvent{
 
@@ -12,14 +13,15 @@ class Channel : private noncopyable{
 
 public:
     typedef std::function<void()> EventCallback;    // 用户传入的回调函数
+    typedef std::function<void(muduo::Timestamp)> ReadEventCallback;
 
     Channel(EventLoop* loop, int fd);               // 每个 Channel 只属于一个 EventLoop
     ~Channel();
 
     // Channel 负责根据 fd 的变化来处理客户传入的回调函数
     // 这里是核心部分，相当于对 IO 进行分发(dispatch)
-    void handleEvent();
-    void setReadCallback(const EventCallback& cb){
+    void handleEvent(muduo::Timestamp receiveTime);
+    void setReadCallback(const ReadEventCallback& cb){
         _readCallback = cb;
     }
     void setWriteCallback(const EventCallback& cb){
@@ -64,7 +66,7 @@ private:
 
     // 实际上，Channel 并不直接保存系统库<poll.h>中的 struct ::pollfd
     // 因为它并不关心 Poller 用的是哪种 poll 方法，所以以后换用 epoll 之类的方法会更灵活
-    EventCallback _readCallback;
+    ReadEventCallback _readCallback;
     EventCallback _writeCallback;
     EventCallback _errorCallback;
     EventCallback _closeCallback;

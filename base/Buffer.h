@@ -1,17 +1,16 @@
-#include <iostream>
+#pragma once
+
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <sys/uio.h>
 #include <errno.h>
 #include <unistd.h>
-
-
 #include <assert.h>
 
 //using namespace std;
 
-
+namespace EasyEvent{
 class Buffer{
 public:
     static const size_t initialSize = 9;
@@ -160,16 +159,16 @@ public:
     }
     
         
-    void printBufInfo(){
-        printf("buffer size: %d\n", bufferSize());
-        printf("start index: %d\n", _startIndex);
-        printf("end index: %d\n", _endIndex);
-        printf("readable bytes: %d\n", readableBytes());
-        printf("writable bytes: %d\n", writableBytes());
-        printf("bytes after end: %d\n", bytesAfterEnd());
-        printf("is full: %d\n", _isFull);
-        printf("\n\n");
-    }
+    // void printBufInfo(){
+    //     printf("buffer size: %d\n", bufferSize());
+    //     printf("start index: %d\n", _startIndex);
+    //     printf("end index: %d\n", _endIndex);
+    //     printf("readable bytes: %d\n", readableBytes());
+    //     printf("writable bytes: %d\n", writableBytes());
+    //     printf("bytes after end: %d\n", bytesAfterEnd());
+    //     printf("is full: %d\n", _isFull);
+    //     printf("\n\n");
+    // }
     
 private:
     char* begin(){
@@ -189,3 +188,5 @@ private:
     size_t _endIndex;
     bool _isFull;
 };
+
+}

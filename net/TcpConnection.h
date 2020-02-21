@@ -3,6 +3,8 @@
 #include "base/CapsuledAddr.h"
 #include "base/noncopyable.h"
 #include "base/FileDescriptor.h"
+#include "base/Timestamp.h"
+#include "base/Buffer.h"
 
 #include <memory>
 
@@ -29,8 +31,8 @@ public:
     // typedef std::function<void()> TimerCallback;
     typedef std::function<void (const TcpConnectionPtr&)> ConnectionCallback;
     typedef std::function<void (const TcpConnectionPtr&,
-                                const char* data,
-                                ssize_t len)> MessageCallback;
+                                Buffer* buf,
+                                muduo::Timestamp)> MessageCallback;
     typedef std::function<void (const TcpConnectionPtr&)> CloseCallback;
 
 
@@ -63,7 +65,7 @@ public:
     void connectDestroyed();
 
 private:
-    void handleRead();
+    void handleRead(muduo::Timestamp receiveTime);
     void handleWrite();
     void handleClose();
     void handleError();
@@ -80,6 +82,7 @@ private:
     ConnectionCallback _connCB;
     MessageCallback _msgCB;
     CloseCallback _closeCB;
+    Buffer _inputBuffer;
 };
 
 }
