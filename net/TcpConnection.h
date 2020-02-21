@@ -47,7 +47,13 @@ public:
     const std::string& getName() const { return _name;}
     const CapsuledAddr& getLocalAddress() { return _localAddr; }
     const CapsuledAddr& getPeerAddress() { return _peerAddr; }
-    bool connected() const { return _hasConnected; }
+    // bool connected() const { return _hasConnected; }
+
+    // thread safe，可以跨线程调用
+    void send(const std::string& message);
+    void shutdown();
+
+    void TcpConnection::setTcpNoDelay(bool on);
 
     void setConnectionCallback(const ConnectionCallback& cb){
         _connCB = cb;
@@ -65,15 +71,22 @@ public:
     void connectDestroyed();
 
 private:
+    enum StateE {kConnecting, kConnected, kDisconnecting, kDisconnected, };
+    void setState(StateE s) { _state = s; }
     void handleRead(muduo::Timestamp receiveTime);
     void handleWrite();
     void handleClose();
     void handleError();
 
+    void sendInLoop(const std::string& message);
+    void shutDownInLoop();
+
 private:
     EventLoop* _loop;
     std::string _name;
-    bool _hasConnected;
+    StateE _state;
+    // bool _hasConnected;
+
 
     std::unique_ptr<FileDescriptor> _conn;
     std::unique_ptr<Channel> _channel;
@@ -83,6 +96,7 @@ private:
     MessageCallback _msgCB;
     CloseCallback _closeCB;
     Buffer _inputBuffer;
+    Buffer _outputBuffer;
 };
 
 }

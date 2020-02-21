@@ -6,6 +6,8 @@
 
 #include <assert.h>
 #include <unistd.h>
+#include <netinet/tcp.h>
+
 
 using namespace EasyEvent;
 
@@ -16,7 +18,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
                              const CapsuledAddr& peerAddr)
     : _loop(loop),
       _name(name),
-      _hasConnected(false),
+      _state(kConnecting),
       _conn(new FileDescriptor(connfd)),
       _channel(new Channel(loop, connfd)),
       _localAddr(localAddr),
@@ -37,13 +39,38 @@ TcpConnection::TcpConnection(EventLoop* loop,
 }
 
 TcpConnection::~TcpConnection(){
+    // LOG OUTPUT
+}
 
+void TcpConnection::send(const std::string& message){
+    if( _state == kConnected){
+        if(_loop->isInLoopThread){
+            sendInLoop(message);
+        }else{
+            _loop->runInLoop(
+                std::bind(&TcpConnection::sendInLoop, this, std::move(message))
+            );
+        }
+    }
+}
+
+void TcpConnection::shutdown(){
+    if(_state == kConnected){
+        setState(kDisconnecting);
+        _loop->runInLoop(std::bind(&TcpConnection::shutDownInLoop, this));
+    }
+}
+
+void TcpConnection::setTcpNoDelay(bool on){
+    int optval = on ? 1 : 0;
+    ::setsockopt(_conn->getFd(), IPPROTO_TCP, TCP_NODELAY,
+               &optval, sizeof optval);
 }
 
 void TcpConnection::connectEstablished(){
     assert(_loop->isInLoopThread());
-    assert(!_hasConnected);
-    _hasConnected = true;
+    assert(_state == kConnecting);
+    setState(kConnected);
     _channel->enableReading();      // 将 Channel 注册到 EventLoop，开始侦听
 
     _connCB(shared_from_this());    // 连接建立时，回调用户传入的 onConnectionCB
@@ -51,8 +78,8 @@ void TcpConnection::connectEstablished(){
 
 void TcpConnection::connectDestroyed(){
     assert(_loop->isInLoopThread());
-    assert(_hasConnected);
-    _hasConnected = false;
+    assert(_state == kConnected || _state == kDisconnecting);
+    setState(kDisconnected);
 
     _channel->disableAll();
     _connCB(shared_from_this());    // connCB 既处理连接建立，又处理连接断开
@@ -77,15 +104,35 @@ void TcpConnection::handleRead(muduo::Timestamp receiveTime){
     
 }
 
-// 处理信息发送
+// 处理信息发送的回调
 void TcpConnection::handleWrite(){
+    assert(_loop->isInLoopThread());
+    if(_channel->isWriting()){
+        size_t n = _outputBuffer.writeFd(_channel->getFd());
 
+        if(n > 0){
+            _outputBuffer.retrieve(n);
+            if(_outputBuffer.readableBytes() == 0){     // level trigger,读完要记得关掉
+                _channel->disableWriting();
+                if(_state == kDisconnecting){
+                    shutDownInLoop();
+                }
+            }else{
+                printf("write more data ...");
+            }
+        }else{
+            // LOG ERROR
+            abort();
+        }
+    }else{
+        printf("connection is down, no more writing");
+    }
 }
 
-// 处理连接断开
+// 处理连接断开回调
 void TcpConnection::handleClose(){
     assert(_loop->isInLoopThread());
-    assert(_hasConnected);
+    assert(_state == kConnected || _state == kDisconnecting);
     _channel->disableAll();
     _closeCB(shared_from_this());   // 保证关闭期间该 TcpConnection 不会被析构
 }
@@ -98,3 +145,41 @@ void TcpConnection::handleError(){
     abort();
 }
 
+
+void TcpConnection::sendInLoop(const std::string& message){
+    assert(_loop->isInLoopThread());
+    ssize_t nwrote = 0;
+
+    // 没有在 output buffer中排队的数据，尝试直接写 socket
+    if(!_channel->isWriting() && _outputBuffer.readableBytes() == 0){
+        nwrote = ::write(_channel->getFd(), message.data(), message.size());
+        if(nwrote >= 0){
+            // if(nwrote < message.size()){
+            // LOG: output more data
+            // }
+        }else{
+            nwrote = 0;
+            if(errno != EWOULDBLOCK){
+                // LOG: error send in loop
+                abort();
+            }
+        }
+    }
+
+    assert(nwrote >= 0);
+    if(nwrote < message.size()){        // 还有一部分数据没写完
+        _outputBuffer.append(message.data()+nwrote, message.size()-nwrote);
+        if(!_channel->isWriting()){
+            _channel->enableWriting();
+        }
+    }
+
+}
+
+
+void TcpConnection::shutDownInLoop(){
+    assert(_loop->isInLoopThread());
+    if(!_channel->isWriting()){
+        assert(::shutdown(_conn->getFd(), SHUT_WR) >= 0);
+    }
+}

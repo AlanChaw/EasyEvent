@@ -13,7 +13,7 @@
 namespace EasyEvent{
 class Buffer{
 public:
-    static const size_t initialSize = 9;
+    static const size_t initialSize = 10;
     
     Buffer()
         : _buffer(initialSize),
@@ -27,7 +27,7 @@ public:
     
     // Read data directly into buffer.
     size_t readFd(int fd, int* savedErrno){
-        // FIX ME
+        // FIX ME!!!  这里效率比较低，拷贝了两次才放到buffer中
         char extrabuf[65535];
         const ssize_t n = read(fd, extrabuf, sizeof extrabuf);
         if(n < 0){
@@ -36,6 +36,17 @@ public:
             append(extrabuf, n);
         }
         return n;
+    }
+
+    size_t writeFd(int fd){
+        size_t n = 0;
+        assert(!isEmpty());
+        // FIX ME !!!  这里后边可以改为使用 writev，一次系统调用写入两部分数据
+        if(_startIndex < _endIndex){
+            n = write(fd, peek(), readableBytes());
+        }else{
+            n = write(fd, peek(), bufferSize()-_startIndex);
+        }
     }
     
     size_t readableBytes() const{
@@ -156,6 +167,10 @@ public:
         if(len > 0 && _endIndex == _startIndex){
             _isFull = true;
         }
+    }
+
+    bool isEmpty(){
+        return (_startIndex == _endIndex && !_isFull);
     }
     
         

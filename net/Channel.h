@@ -39,9 +39,12 @@ public:
     void set_revents(int revt) { _revents = revt; }
     bool isNoneEvent() const { return _events == kNoneEvent; }
 
-    void enableReading() { _events = (_events | kReadEvent); update(); }
-
+    void enableReading() { _events |= kReadEvent; update(); }
+    void enableWriting() { _events |= kWriteEvent; update(); }
+    void disableWriting() { _events &= ~kWriteEvent; update(); }
     void disableAll(){ _events = kNoneEvent; update(); }
+
+    bool isWriting() const { return _events & kWriteEvent; }
 
     // 给 Poller 使用
     int getIndex() const { return _index; }
