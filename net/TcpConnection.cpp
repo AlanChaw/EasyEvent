@@ -44,7 +44,7 @@ TcpConnection::~TcpConnection(){
 
 void TcpConnection::send(const std::string& message){
     if( _state == kConnected){
-        if(_loop->isInLoopThread){
+        if(_loop->isInLoopThread()){
             sendInLoop(message);
         }else{
             _loop->runInLoop(
@@ -114,6 +114,9 @@ void TcpConnection::handleWrite(){
             _outputBuffer.retrieve(n);
             if(_outputBuffer.readableBytes() == 0){     // level trigger,读完要记得关掉
                 _channel->disableWriting();
+                if(_writeCompleteCB){
+                    _loop->queueInLoop(std::bind(_writeCompleteCB, shared_from_this()));
+                }
                 if(_state == kDisconnecting){
                     shutDownInLoop();
                 }
@@ -154,9 +157,11 @@ void TcpConnection::sendInLoop(const std::string& message){
     if(!_channel->isWriting() && _outputBuffer.readableBytes() == 0){
         nwrote = ::write(_channel->getFd(), message.data(), message.size());
         if(nwrote >= 0){
-            // if(nwrote < message.size()){
+            if(static_cast<size_t>(nwrote) < message.size()){
             // LOG: output more data
-            // }
+            }else if(_writeCompleteCB){
+                _loop->queueInLoop(std::bind(_writeCompleteCB, shared_from_this()));
+            }
         }else{
             nwrote = 0;
             if(errno != EWOULDBLOCK){
@@ -167,7 +172,7 @@ void TcpConnection::sendInLoop(const std::string& message){
     }
 
     assert(nwrote >= 0);
-    if(nwrote < message.size()){        // 还有一部分数据没写完
+    if(static_cast<size_t>(nwrote) < message.size()){        // 还有一部分数据没写完
         _outputBuffer.append(message.data()+nwrote, message.size()-nwrote);
         if(!_channel->isWriting()){
             _channel->enableWriting();

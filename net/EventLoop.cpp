@@ -8,6 +8,7 @@
 
 #include <sys/eventfd.h>
 #include <unistd.h>
+#include <signal.h>
 #include <poll.h>
 
 using namespace EasyEvent;
@@ -21,6 +22,17 @@ static int createEventfd()
   assert(evtfd >= 0);
   return evtfd;
 }
+
+class IgnoreSigPipe
+{
+ public:
+  IgnoreSigPipe()
+  {
+    ::signal(SIGPIPE, SIG_IGN);
+  }
+};
+
+IgnoreSigPipe initObj;
 
 /************************* 构造/析构 ************************/
 EventLoop::EventLoop()

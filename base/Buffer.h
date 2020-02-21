@@ -39,7 +39,7 @@ public:
     }
 
     size_t writeFd(int fd){
-        size_t n = 0;
+        ssize_t n = 0;
         assert(!isEmpty());
         // FIX ME !!!  这里后边可以改为使用 writev，一次系统调用写入两部分数据
         if(_startIndex < _endIndex){
@@ -47,6 +47,8 @@ public:
         }else{
             n = write(fd, peek(), bufferSize()-_startIndex);
         }
+
+        return n;
     }
     
     size_t readableBytes() const{

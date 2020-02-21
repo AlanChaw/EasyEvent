@@ -33,6 +33,7 @@ public:
     typedef std::function<void (const TcpConnectionPtr&,
                                 Buffer* buf,
                                 muduo::Timestamp)> MessageCallback;
+    typedef std::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
     typedef std::function<void (const TcpConnectionPtr&)> CloseCallback;
 
 
@@ -47,13 +48,13 @@ public:
     const std::string& getName() const { return _name;}
     const CapsuledAddr& getLocalAddress() { return _localAddr; }
     const CapsuledAddr& getPeerAddress() { return _peerAddr; }
-    // bool connected() const { return _hasConnected; }
+    bool connected() const { return _state == kConnected; }
 
     // thread safe，可以跨线程调用
     void send(const std::string& message);
     void shutdown();
 
-    void TcpConnection::setTcpNoDelay(bool on);
+    void setTcpNoDelay(bool on);
 
     void setConnectionCallback(const ConnectionCallback& cb){
         _connCB = cb;
@@ -94,6 +95,7 @@ private:
     CapsuledAddr _peerAddr;
     ConnectionCallback _connCB;
     MessageCallback _msgCB;
+    WriteCompleteCallback _writeCompleteCB;
     CloseCallback _closeCB;
     Buffer _inputBuffer;
     Buffer _outputBuffer;
