@@ -17,6 +17,7 @@ set(net_SRCS
   Acceptor.cpp 
   TcpConnection.cpp 
   TcpServer.cpp 
+  EventLoopThreadPool.cpp
 #   EventLoopThread.cc
 #   EventLoopThreadPool.cc
 #   InetAddress.cc

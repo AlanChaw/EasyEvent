@@ -1,5 +1,9 @@
 #include "TcpServer.h"
+
+#include "EventLoopThreadPool.h"
 #include "EventLoop.h"
+#include "Acceptor.h"
+
 
 #include <functional>
 // #include <boost/bind.hpp>
@@ -11,6 +15,7 @@ TcpServer::TcpServer(EventLoop* loop, const CapsuledAddr& listenAddr)
     : _loop(loop),
       _name(listenAddr.toString()),
       _acceptor(new Acceptor(loop, listenAddr)),
+      _threadPool(new EventLoopThreadPool(_loop)),
       _started(false),
       _nextConnId(1)
 {
@@ -25,6 +30,15 @@ TcpServer::~TcpServer()
 {
 }
 
+
+// 0 表示所有IO都在 TcpServer 线程进行
+// >0 表示 TcpServer 只处理新连接，并将 IO 交给大小为 num 的线程池来处理
+void TcpServer::setThreadNum(int numThreads){
+    assert(numThreads >= 0);
+    _threadPool->setThreadNum(numThreads);
+}
+
+// 线程安全
 void TcpServer::start(){
     if(!_started){
         _started = true;
@@ -48,11 +62,13 @@ void TcpServer::newConnection(int connfd, const CapsuledAddr& peerAddr){
     // !!!!!! 在 muduo 中这个部分的实现有严重的歧义。虽然传入 socket fd 也能拿到同样的本地地址
     CapsuledAddr localAddr(Socket::getLocalAddr(connfd));  // 0.0.0.0 : listen port
 
+    EventLoop* ioLoop = _threadPool->getNextLoop();
+
     // printf("new connection socket fd: %d \n", _acceptor->getAcceptSocket().getFd());
     // printf("new connection connfd: %d \n", connfd);
     // shared ptr 间接持有
     TcpConnectionPtr conn(
-      std::make_shared<TcpConnection>(_loop, connName, connfd, localAddr, peerAddr)
+      std::make_shared<TcpConnection>(ioLoop, connName, connfd, localAddr, peerAddr)
     );
 
     // printf("localAddr: %s \n", localAddr.toString().c_str());
@@ -63,16 +79,30 @@ void TcpServer::newConnection(int connfd, const CapsuledAddr& peerAddr){
     // 把用户传入的回调函数原封传入新的 TcpConnection
     conn->setConnectionCallback(_connCB);
     conn->setMessageCallback(_msgCB);
+    conn->setWriteCompleteCallback(_writeCompleteCb);
     conn->setCloseCallback(std::bind(&TcpServer::removeConnection, this, _1));
-    conn->connectEstablished();
+
+    ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn){
+    _loop->runInLoop(bind(&TcpServer::removeConnectionInLoop, this, conn));
+    // assert(_loop->isInLoopThread());
+    // size_t n = _connMap.erase(conn->getName());
+    // assert(n == 1);  (void)n;
+    // _loop->queueInLoop(
+    //     std::bind(&TcpConnection::connectDestroyed, conn)
+    // );
+    // // 删除后再告诉一声
+}
+
+void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn){
     assert(_loop->isInLoopThread());
     size_t n = _connMap.erase(conn->getName());
-    assert(n == 1);  (void)n;
-    _loop->queueInLoop(
+    assert(n == 1); (void)n;
+    EventLoop* ioLoop = conn->getLoop();
+
+    ioLoop->queueInLoop(
         std::bind(&TcpConnection::connectDestroyed, conn)
     );
-    // 删除后再告诉一声
 }

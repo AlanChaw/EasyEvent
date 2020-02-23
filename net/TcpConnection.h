@@ -62,6 +62,9 @@ public:
     void setMessageCallback(const MessageCallback& cb){
         _msgCB = cb;
     }
+    void setWriteCompleteCallback(const WriteCompleteCallback& cb){
+        _writeCompleteCB = cb;
+    }
     // 内部使用，用于通知 TcpServer 析构该 TcpConnection
     void setCloseCallback(const CloseCallback& cb){
         _closeCB = cb;

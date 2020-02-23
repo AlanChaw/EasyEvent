@@ -6,8 +6,6 @@
 std::string message1;
 std::string message2;
 
-int sleepSeconds = 5;
-
 using namespace EasyEvent;
 
 void onConnection(const TcpConnectionPtr& conn)
@@ -17,9 +15,7 @@ void onConnection(const TcpConnectionPtr& conn)
     printf("onConnection(): new connection [%s] from %s\n",
            conn->getName().c_str(),
            conn->getPeerAddress().toString().c_str());
-    if(sleepSeconds > 0){
-      ::sleep(sleepSeconds);
-    }
+
     conn->send(message1);
     conn->send(message2);
     conn->shutdown();
@@ -63,10 +59,13 @@ int main(int argc, char* argv[])
 
   CapsuledAddr listenAddr(9981);
   EventLoop loop;
-
+  printf("loop created\n");
   TcpServer server(&loop, listenAddr);
   server.setConnectionCallback(onConnection);
   server.setMessageCallback(onMessage);
+
+  server.setThreadNum(5);
+  printf("before start\n");
   server.start();
 
   loop.startLoop();

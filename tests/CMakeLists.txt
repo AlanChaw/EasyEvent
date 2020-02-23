@@ -41,8 +41,8 @@
 # add_executable(Buffertest Buffertest.cpp)
 # target_link_libraries(Buffertest EasyEvent_net)
 
-add_executable(testEcho testEcho.cpp)
-target_link_libraries(testEcho EasyEvent_net)
+# add_executable(testEcho testEcho.cpp)
+# target_link_libraries(testEcho EasyEvent_net)
 
 add_executable(testWrite testWrite.cpp)
 target_link_libraries(testWrite EasyEvent_net)
