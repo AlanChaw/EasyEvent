@@ -44,5 +44,11 @@
 # add_executable(testEcho testEcho.cpp)
 # target_link_libraries(testEcho EasyEvent_net)
 
-add_executable(testWrite testWrite.cpp)
-target_link_libraries(testWrite EasyEvent_net)
+# add_executable(testWrite testWrite.cpp)
+# target_link_libraries(testWrite EasyEvent_net)
+
+add_executable(udpClient udpClient.cpp)
+target_link_libraries(udpClient EasyEvent_net)
+
+add_executable(udpServer udpServer.cpp)
+target_link_libraries(udpServer EasyEvent_net)

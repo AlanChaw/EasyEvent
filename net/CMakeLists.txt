@@ -18,6 +18,8 @@ set(net_SRCS
   TcpConnection.cpp 
   TcpServer.cpp 
   EventLoopThreadPool.cpp
+  UdpHandler.cpp 
+  UdpServer.cpp 
 #   EventLoopThread.cc
 #   EventLoopThreadPool.cc
 #   InetAddress.cc

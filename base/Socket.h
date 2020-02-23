@@ -28,8 +28,11 @@ public:
     void setReuseAddr(bool on);
 
     static int createNonblockingOrDie();
+    static int createUdpBlocking();
     static sockaddr_in getLocalAddr(int sockfd);
     static int getSocketErr(int sockfd);
+    static const sockaddr* cast_to_sockaddr(const sockaddr_in* addr);
+    static sockaddr* cast_to_sockaddr(sockaddr_in* addr);
 };
 
 

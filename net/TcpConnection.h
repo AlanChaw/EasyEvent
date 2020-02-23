@@ -90,8 +90,6 @@ private:
     std::string _name;
     StateE _state;
     // bool _hasConnected;
-
-
     std::unique_ptr<FileDescriptor> _conn;
     std::unique_ptr<Channel> _channel;
     CapsuledAddr _localAddr;

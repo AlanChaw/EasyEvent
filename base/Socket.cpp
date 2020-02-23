@@ -17,8 +17,8 @@ Socket::Socket(int socket_fd)
     : FileDescriptor(socket_fd) {}
 
 
-const sockaddr* cast_to_sockaddr(const sockaddr_in* addr);
-sockaddr* cast_to_sockaddr(sockaddr_in* addr);
+// const sockaddr* cast_to_sockaddr(const sockaddr_in* addr);
+// sockaddr* cast_to_sockaddr(sockaddr_in* addr);
 
 void Socket::bindAddress(const CapsuledAddr& addr){
     // socket::bind(), 不是 C++11 std::bind()，这里是将“地址：端口”信息绑定到 fd
@@ -67,14 +67,7 @@ void Socket::setReuseAddr(bool on){
 /********************** helper functions **********************/
 
 // namespace{
-const sockaddr* cast_to_sockaddr(const sockaddr_in* addr){
-    sockaddr_in* temp = const_cast<sockaddr_in*>(addr);
-    return reinterpret_cast<sockaddr*>(temp);
-}
 
-sockaddr* cast_to_sockaddr(sockaddr_in* addr){
-    return reinterpret_cast<sockaddr*>(addr);
-}
 
 void setNonBlockAndCloseOnExec(int sockfd){
     // non-block，非阻塞，使用时会立即返回
@@ -108,6 +101,15 @@ int Socket::createNonblockingOrDie(){
     return sockfd;
 }
 
+int Socket::createUdpBlocking(){
+    int sockfd = ::socket(AF_INET,                      // IPV4
+    SOCK_DGRAM,                                         // 数据报传输
+    IPPROTO_UDP);                                       // UDP
+
+    assert(sockfd >= 0);
+    return sockfd;
+}
+
 sockaddr_in Socket::getLocalAddr(int connfd){
     sockaddr_in localAddr;
     bzero(&localAddr, sizeof localAddr);
@@ -133,4 +135,13 @@ int Socket::getSocketErr(int sockfd)
   {
     return optval;
   }
+}
+
+const sockaddr* Socket::cast_to_sockaddr(const sockaddr_in* addr){
+    sockaddr_in* temp = const_cast<sockaddr_in*>(addr);
+    return reinterpret_cast<sockaddr*>(temp);
+}
+
+sockaddr* Socket::cast_to_sockaddr(sockaddr_in* addr){
+    return reinterpret_cast<sockaddr*>(addr);
 }

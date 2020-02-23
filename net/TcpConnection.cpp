@@ -148,7 +148,6 @@ void TcpConnection::handleError(){
     abort();
 }
 
-
 void TcpConnection::sendInLoop(const std::string& message){
     assert(_loop->isInLoopThread());
     ssize_t nwrote = 0;

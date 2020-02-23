@@ -70,7 +70,7 @@ void EventLoop::startLoop(){
 
     while(!_quit){
         _activeChannels.clear();
-        _poller->poll(kPollTimeMs, &_activeChannels);
+        _pollReturnTime = _poller->poll(kPollTimeMs, &_activeChannels);
         for(auto iter = _activeChannels.begin(); iter != _activeChannels.end(); ++iter){
             (*iter)->handleEvent(_pollReturnTime);
         }
